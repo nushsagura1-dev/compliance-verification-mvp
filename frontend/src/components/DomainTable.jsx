@@ -78,7 +78,7 @@ export default function DomainTable({ domains, onUpdate }) {
     }
 
     const verifyUrl = (domainName) =>
-        `${window.location.protocol}//${window.location.hostname}:8000/verify?domain=${domainName}`
+        `${window.location.origin}/verify?domain=${domainName}`
 
     if (domains.length === 0) {
         return (
