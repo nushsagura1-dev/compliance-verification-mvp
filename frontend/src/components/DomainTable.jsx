@@ -48,10 +48,12 @@ function CopyButton({ text, label }) {
 export default function DomainTable({ domains, onUpdate }) {
     const [revoking, setRevoking] = useState(null)
     const [deleting, setDeleting] = useState(null)
+    // Inline confirmation: { id, action } — no more window.confirm()
+    const [confirmAction, setConfirmAction] = useState(null)
 
     const handleRevoke = async (domain) => {
-        if (!confirm(`Revoke "${domain.domain_name}"? This cannot be undone.`)) return
         setRevoking(domain.id)
+        setConfirmAction(null)
         try {
             const updated = await revokeDomain(domain.id)
             toast.success(`"${domain.domain_name}" revoked.`)
@@ -64,8 +66,8 @@ export default function DomainTable({ domains, onUpdate }) {
     }
 
     const handleDelete = async (domain) => {
-        if (!confirm(`Permanently delete "${domain.domain_name}"?`)) return
         setDeleting(domain.id)
+        setConfirmAction(null)
         try {
             await deleteDomain(domain.id)
             toast.success(`"${domain.domain_name}" deleted.`)
@@ -76,6 +78,9 @@ export default function DomainTable({ domains, onUpdate }) {
             setDeleting(null)
         }
     }
+
+    const askConfirm = (id, action) => setConfirmAction({ id, action })
+    const cancelConfirm = () => setConfirmAction(null)
 
     const verifyUrl = (domainName) =>
         `${window.location.origin}/verify?domain=${domainName}`
@@ -136,36 +141,72 @@ export default function DomainTable({ domains, onUpdate }) {
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             title="Open verification URL"
-                                            className="text-gray-500 hover:text-indigo-400 transition-colors"
+                                            className="p-1.5 rounded-lg text-gray-500 hover:text-indigo-400 hover:bg-indigo-500/10 transition-all"
                                         >
                                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
                                             </svg>
                                         </a>
-                                        {/* Revoke */}
+
+                                        {/* Revoke — inline confirmation */}
                                         {d.status === 'active' && (
+                                            confirmAction?.id === d.id && confirmAction?.action === 'revoke' ? (
+                                                <span className="inline-flex items-center gap-1">
+                                                    <button
+                                                        onClick={() => handleRevoke(d)}
+                                                        disabled={revoking === d.id}
+                                                        className="px-2 py-0.5 rounded text-xs font-medium bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 border border-amber-500/30 transition-all disabled:opacity-50"
+                                                    >
+                                                        {revoking === d.id ? '…' : 'Sure?'}
+                                                    </button>
+                                                    <button
+                                                        onClick={cancelConfirm}
+                                                        className="px-1.5 py-0.5 rounded text-xs text-gray-500 hover:text-gray-300 transition-colors"
+                                                    >
+                                                        ✕
+                                                    </button>
+                                                </span>
+                                            ) : (
+                                                <button
+                                                    onClick={() => askConfirm(d.id, 'revoke')}
+                                                    title="Revoke"
+                                                    className="p-1.5 rounded-lg text-gray-500 hover:text-amber-400 hover:bg-amber-500/10 transition-all"
+                                                >
+                                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                                                    </svg>
+                                                </button>
+                                            )
+                                        )}
+
+                                        {/* Delete — inline confirmation */}
+                                        {confirmAction?.id === d.id && confirmAction?.action === 'delete' ? (
+                                            <span className="inline-flex items-center gap-1">
+                                                <button
+                                                    onClick={() => handleDelete(d)}
+                                                    disabled={deleting === d.id}
+                                                    className="px-2 py-0.5 rounded text-xs font-medium bg-red-500/20 text-red-400 hover:bg-red-500/30 border border-red-500/30 transition-all disabled:opacity-50"
+                                                >
+                                                    {deleting === d.id ? '…' : 'Sure?'}
+                                                </button>
+                                                <button
+                                                    onClick={cancelConfirm}
+                                                    className="px-1.5 py-0.5 rounded text-xs text-gray-500 hover:text-gray-300 transition-colors"
+                                                >
+                                                    ✕
+                                                </button>
+                                            </span>
+                                        ) : (
                                             <button
-                                                onClick={() => handleRevoke(d)}
-                                                disabled={revoking === d.id}
-                                                title="Revoke"
-                                                className="text-gray-500 hover:text-amber-400 transition-colors disabled:opacity-50"
+                                                onClick={() => askConfirm(d.id, 'delete')}
+                                                title="Delete"
+                                                className="p-1.5 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-all"
                                             >
                                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                                                 </svg>
                                             </button>
                                         )}
-                                        {/* Delete */}
-                                        <button
-                                            onClick={() => handleDelete(d)}
-                                            disabled={deleting === d.id}
-                                            title="Delete"
-                                            className="text-gray-500 hover:text-red-400 transition-colors disabled:opacity-50"
-                                        >
-                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                                            </svg>
-                                        </button>
                                     </div>
                                 </td>
                             </tr>
