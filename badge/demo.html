@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Compliance Badge — Demo</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #030712;
+            color: #f9fafb;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .card {
+            background: #111827;
+            border: 1px solid #1f2937;
+            border-radius: 16px;
+            padding: 2.5rem;
+            max-width: 640px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            color: #9ca3af;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .demo-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            flex-wrap: wrap;
+        }
+
+        .demo-row code {
+            font-size: 0.75rem;
+            color: #7c3aed;
+            background: #1e1b4b;
+            padding: 2px 8px;
+            border-radius: 6px;
+        }
+
+        .separator {
+            color: #374151;
+            font-size: 0.75rem;
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+
+        .snippet {
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 1.25rem;
+        }
+
+        .snippet pre {
+            font-size: 0.75rem;
+            color: #a5b4fc;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <h1>Compliance Badge Demo</h1>
+        <p>
+            Add <code>data-domain="your-domain.com"</code> to any element and include the badge script.
+            The badge fetches live status from the API and renders automatically.
+        </p>
+
+        <div class="demo-row">
+            <span style="color:#6b7280;font-size:0.8rem;min-width:80px;">example.com</span>
+            <!-- Badge auto-rendered here -->
+            <div id="compliance-badge" data-domain="example.com"></div>
+            <code>status: active</code>
+        </div>
+
+        <div class="demo-row">
+            <span style="color:#6b7280;font-size:0.8rem;min-width:80px;">revoked.com</span>
+            <div data-domain="revoked.com"></div>
+            <code>status: revoked / not found</code>
+        </div>
+
+        <div class="separator">— Embed snippet —</div>
+
+        <div class="snippet">
+            <pre>&lt;div id="compliance-badge" data-domain="example.com"&gt;&lt;/div&gt;
+&lt;script src="https://your-api.com/badge/badge.js"&gt;&lt;/script&gt;
+
+&lt;!-- Custom API URL --&gt;
+&lt;script
+  src="https://your-api.com/badge/badge.js"
+  data-api="https://your-api.com"&gt;
+&lt;/script&gt;</pre>
+        </div>
+    </div>
+
+    <!--
+    Replace the src if testing externally.
+    When served by the FastAPI server, use:
+    <script src="http://localhost:8000/badge/badge.js" data-api="http://localhost:8000"></script>
+  -->
+    <script src="./badge.js" data-api="http://localhost:8000"></script>
+</body>
+
+</html>

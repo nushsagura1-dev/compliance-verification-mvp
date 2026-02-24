@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node
+node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.*
+
+# Keys
+*.pem
+private_key.bin
+
+# Docker
+.docker/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Agent
+.agent/
+.gemini/
+
+# SQLite local DBs
+*.db
+
+# Debug / log files
+debug_paths.txt
+server.log
+test_output.txt
